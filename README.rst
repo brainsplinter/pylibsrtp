@@ -35,11 +35,8 @@ SRTP is a profile of the Real-time Transport Protocol (RTP) which provides
 confidentiality, message authentication, and replay protection. It is defined
 by `RFC 3711`_.
 
-You can install ``pylibsrtp`` with ``pip``:
-
-.. code-block:: console
-
-    $ pip install pylibsrtp
+This fork of pylibsrtp adds a hack to change the cipher from the default.
+Currently only cipher=1 or 2 works.
 
 To learn more about ``pylibsrtp`` please `read the documentation`_.
 
@@ -62,12 +59,12 @@ Example
     rtp = b'\x80\x08\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00' + (b'\xd4' * 160)
 
     # protect RTP
-    tx_policy = Policy(key=key, ssrc_type=Policy.SSRC_ANY_OUTBOUND)
+    tx_policy = Policy(key=key, ssrc_type=Policy.SSRC_ANY_OUTBOUND, cipher=1)
     tx_session = Session(policy=tx_policy)
     srtp = tx_session.protect(rtp)
 
     # unprotect RTP
-    rx_policy = Policy(key=key, ssrc_type=Policy.SSRC_ANY_INBOUND)
+    rx_policy = Policy(key=key, ssrc_type=Policy.SSRC_ANY_INBOUND, cipher=1)
     rx_session = Session(policy=rx_policy)
     rtp2 = rx_session.unprotect(srtp)
 

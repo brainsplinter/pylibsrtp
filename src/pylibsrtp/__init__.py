@@ -68,15 +68,37 @@ class Policy:
     SSRC_ANY_INBOUND = lib.ssrc_any_inbound
     #: Indicates any inbound SSRC value
     SSRC_ANY_OUTBOUND = lib.ssrc_any_outbound
+    #: Supported ciphers
+    srtp_profile_aes128_cm_sha1_80 = lib.srtp_profile_aes128_cm_sha1_80
+    srtp_profile_aes128_cm_sha1_32 = lib.srtp_profile_aes128_cm_sha1_32
+    srtp_profile_null_sha1_80 = lib.srtp_profile_null_sha1_80
+    srtp_profile_null_sha1_32 = lib.srtp_profile_null_sha1_32
+    srtp_profile_aead_aes_128_gcm = lib.srtp_profile_aead_aes_128_gcm
+    srtp_profile_aead_aes_256_gcm = lib.srtp_profile_aead_aes_256_gcm
 
     def __init__(
         self,
         key: Optional[bytes] = None,
         ssrc_type: int = SSRC_UNDEFINED,
         ssrc_value: int = 0,
+        cipher: int = lib.srtp_profile_aes128_cm_sha1_80,
     ) -> None:
         self._policy = ffi.new("srtp_policy_t *")
-        lib.srtp_crypto_policy_set_rtp_default(ffi.addressof(self._policy.rtp))
+        #lib.srtp_crypto_policy_set_rtp_default(ffi.addressof(self._policy.rtp))
+        if cipher == lib.srtp_profile_aes128_cm_sha1_80:
+            lib.srtp_crypto_policy_set_aes_cm_128_hmac_sha1_80(ffi.addressof(self._policy.rtp))
+        elif cipher == lib.srtp_profile_aes128_cm_sha1_32:
+            lib.srtp_crypto_policy_set_aes_cm_128_hmac_sha1_32(ffi.addressof(self._policy.rtp))
+        elif cipher == lib.srtp_profile_null_sha1_80:
+            lib.srtp_crypto_policy_set_null_cipher_hmac_sha1_80(ffi.addressof(self._policy.rtp))
+        elif cipher == lib.srtp_profile_aead_aes_128_gcm:
+            lib.srtp_crypto_policy_set_aes_gcm_128_16_auth(ffi.addressof(self._policy.rtp))
+        elif cipher == lib.srtp_profile_aead_aes_256_gcm:
+            lib.srtp_crypto_policy_set_aes_gcm_256_16_auth(ffi.addressof(self._policy.rtp))
+#            lib.(ffi.addressof(self._policy.rtp))
+        elif cipher == lib.srtp_profile_null_sha1_32:
+            # not supported
+            pass
         lib.srtp_crypto_policy_set_rtcp_default(ffi.addressof(self._policy.rtcp))
 
         self.key = key
